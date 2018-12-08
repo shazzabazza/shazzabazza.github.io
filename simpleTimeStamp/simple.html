@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CryptoPriceStamp</title>
+    <link rel="stylesheet" type="text/css" href="../globalStyle.css">
+    <link rel="stylesheet" type="text/css" href="simple.css">
+</head>
+
+<body>
+    <div class="header">
+        <a>CryptoPriceStamp</a>
+    </div>
+
+    <h3>Check the price of a Coin at a specific time in history, accurate to the hour!</h3>
+
+    <div class="dataContainer">
+        <div class="simple-form">
+            <form id="simpleForm">
+                <div class="dropDownSelect">
+                    <div>
+                        <label for="coinSelect">Coin</label>
+                            <select id="coinSelect">
+                                <option value="ETH">ETH</option>
+                                <option value="BTC">BTC</option>
+                                <option value="XRP">XRP</option>
+                                <option value="ZEC">ZEC</option>
+                                <option value="XMR">XMR</option>
+                                <option value="ZRX">ZRX</option>
+                                <option value="LINK">LINK</option>
+                                <option value="BAT">BAT</option>
+                                <option value="XLM">XLM</option>
+                                <option value="STEEM">STEEM</option>
+                                <option value="BAT">BAT</option>
+                                <option value="GNT">GNT</option>
+                                <option value="EOS">EOS</option>
+                                <option value="LTC">LTC</option>
+
+                            </select>
+
+                    </div>
+
+                    <div>
+                        <label for="dateSelect">Date</label>
+                        <input class="dateTime" type="date" id="dateSelect" name="day">
+                    </div>
+
+                    <div>
+                        <label for="timeSelect">Time (UTC)</label>
+                        <input class="dateTime" type="time" id="timeSelect" name="timeUTC">
+                    </div>
+
+                    <div>
+                        <label for="fiatSelect">Fiat Currency</label>
+                        <select id="fiatSelect">
+                            <option value="CAD">CAD</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="submitButton">
+                    <input class="submit" type="submit" value="Submit">
+                </div>
+            </form>
+        </div>
+
+        <div class="displaySimpleResult">
+            <div class="containsSimpleOutput">
+                <p id="displayResult">Your Coin's historic value:</p>
+                <div class="simpleOutput" id="output">
+                    <p id="closeResult">Close</p>
+                    <p id="highResult">High</p>
+                    <p id="lowResult">Low</p>
+                    <p id="openResult">Open</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <script src="simple.js"></script>
+</body>
+
+</html>

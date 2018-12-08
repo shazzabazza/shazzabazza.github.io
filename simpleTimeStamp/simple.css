@@ -1,0 +1,67 @@
+.dataContainer {
+    font-family: 'Chakra Petch', sans-serif;
+
+}
+
+.simple-form, .displaySimpleResult {
+    padding: 2em;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: rgb(238, 2, 218);
+    flex-direction: column;
+}
+
+.dropDownSelect {
+    padding: 20px;
+    background-color: rgb(235, 1, 40);
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+}
+/* stay with classes */
+label {
+    color: black;
+    padding: 5px;
+    display: block;
+    text-align: center;
+
+}
+/* use rem */
+select {
+    padding: 1em;
+    margin: 15px;
+    background-color: white;
+    width: 10em;
+}
+
+.dateTime {
+    padding: 1em;
+    margin: 15px;
+    background-color: white;
+    border-width: 0px;
+    
+}
+
+.submit {
+    background-color: #5300ec;
+    color: black; 
+    padding: 15px;
+    width: 100%;
+
+}
+
+.containsSimpleOutput {
+    background-color:rgb(9, 255, 0);
+    text-align: center;
+
+}
+
+.simpleOutput {
+    background-color: rgb(250, 212, 0);
+    padding: 25px;
+
+}
+
+
