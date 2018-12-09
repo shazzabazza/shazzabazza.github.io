@@ -1,0 +1,56 @@
+.backgroundBody {
+    background-color: #AF7595;
+    padding: 3rem;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+}
+
+.landingBody {
+    background-color: #FFEAEA;
+    padding: 4rem; 
+    height: 45rem;
+    max-width: 60rem;
+}
+
+.landingPageTitle{
+    line-height: 1rem;
+    font-size: 3rem;
+
+}
+
+.groupTitleIntro {
+    padding: 3rem;
+}
+
+.shortIntro {
+    font-size: 1.5rem;
+}
+
+.smallBlubMe {
+    font-size: 0.75rem;
+}
+
+.descriptionIntro {
+    padding-top:  2rem;
+    display: flex;
+    justify-content: space-around;
+}
+
+.subIntro {
+    padding-top: 1.5rem;
+}
+
+.browseProjectButton {
+    margin-top: 2rem;
+    padding: 1.5rem 4rem;
+    background-color: #C8E7F6;
+    text-decoration:none;
+    display: flex;
+    justify-content: center;
+
+}
+.browseProjectButton:hover {
+    color: #8C2155;
+    background-color: #FFFFFF
+}
