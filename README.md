@@ -1,2 +1,3 @@
-# CryptoPriceStamp
-To check prices of cryptocurrencies at a specific point in time
+# Simple Blockchain Tools
+
+A place where you can find simple blockchain user apps and blockchain developer tools. 
