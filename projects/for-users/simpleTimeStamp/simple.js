@@ -1,153 +1,123 @@
-// ETH DATE TIME FIAT
-const baseURL = "https://min-api.cryptocompare.com/data/histohour?";
-
 // listens for click on submit, then starts to assembleQueryURL for api request
-document.addEventListener("submit", assembleQueryURL);
+document.addEventListener("submit", getHistogramValues);
+function getHistogramValues(e) {
+  e.preventDefault(); //stops default action of submit form
 
-function assembleQueryURL(x) {
-  //event(e) not x
+  const priceCheckInputs = getPriceCheckInputsFromUser();
+  const timeUnixSec = convertTimeToUnix(priceCheckInputs.date, priceCheckInputs.time);
 
-  x.preventDefault(); //stops default action of submit form
-
-  //calls function getValues(), assigns all values to neededValues forAPI object to be used for makeQueryURL function
-  const dateValue = getValues();
-  const finalTimeValue = convertTimeUNIX(dateValue.rawDate, dateValue.rawTime);
-  const finalQueryURL = makeQueryURL(
+  // ETH DATE TIME FIAT
+  const baseURL = "https://min-api.cryptocompare.com/data/histohour?";
+  const histogramUrl = makeFullHistogramUrl(
     baseURL,
-    dateValue.coin,
-    dateValue.fiat,
-    finalTimeValue
+    { coin, fiat, timeUnixSec }
   );
-  const URLandValues = {
-    dateTimeValue: dateValue, 
-    UNIXTimeValue: finalTimeValue, 
-    masterURL: finalQueryURL
-  }
 
-  sendFetchRequest(finalQueryURL);
-
-  return URLandValues;
+  const histogramResponse = sendFetchRequest(histogramUrl);
+  const averagedHistogram = averageHistogramValues(histogramResponse)
+  displayHistogram(averagedHistogram)
 }
 
-function getValues() {
+/**
+ * Fetch the required user inputs from the DOM
+ * that are needed to perform a histogram request
+ * @returns time: HH:MM:SS, coin: string, date: DD:MM:YYYY, fiat: string
+ */
+function getPriceCheckInputsFromUser() {
   //gets all values needed from form to make API URL and returns
-  let allValues = {
-    rawTime: document.getElementById("timeSelect").value,
+  return {
+    time: document.getElementById("timeSelect").value,
     coin: document.getElementById("coinSelect").value,
-    rawDate: document.getElementById("dateSelect").value,
+    date: document.getElementById("dateSelect").value,
     fiat: document.getElementById("fiatSelect").value
   };
-
-  console.log(allValues);
-  return allValues;
 }
 
 // rounding time to nearest hour better naming
-function roundingToNearestHour(timeMs) {
-  console.log("roundingToNearestHour - start", new Date(timeMs));
-  let oneSecond = 1000;
-  let oneMinute = 60 * oneSecond;
-  let oneHour = 60 * oneMinute;
-  let date = new Date(timeMs);
+function roundToNearestHour(timeMs) {
+  const oneSecond = 1000;
+  const oneMinute = 60 * oneSecond;
+  const oneHour = 60 * oneMinute;
+  const date = new Date(timeMs);
 
   if (date.getMinutes() >= 30) {
     const convertedTime = timeMs + oneHour;
-    console.log(
-      "roundingToNearestHour - end - rounded",
-      new Date(convertedTime)
-    );
-
     return convertedTime;
   } else {
-    console.log("roundingToNearestHour - end", new Date(timeMs));
-
     return timeMs;
   }
 }
 
-function convertTimeUNIX(date, time) {
+
+/**
+ * Convert a date and time string into unix time(seconds)
+ * @param {*} date DD:MM:YYY
+ * @param {*} time HH:MM:SS
+ * @returns Unix time in seconds
+ */
+function convertTimeToUnix(date, time) {
   //converts time to UNIX
   const dateStringToParse = `${date} ${time}:00 UTC`;
-  console.log("dateStringToParse", dateStringToParse);
+  const unixTimeMS = roundToNearestHour(Date.parse(dateStringToParse));
+  const unixTimeSeconds = unixTimeMS / 1000;
 
-  let unixTimeMS = roundingToNearestHour(Date.parse(dateStringToParse));
-  let unixTimeSeconds = unixTimeMS / 1000;
-
-  console.log(unixTimeSeconds);
   return Math.floor(unixTimeSeconds);
 }
 
-function makeQueryURL(baseURL, coin, fiat, time) {
-  //pass in an object with properties that refelct arg
-  //assemble the full URL
-  //base URL for api
-    const queryURL =
-    baseURL + "&fsym=" + coin + "&tsym=" + fiat + "&toTs=" + time + "&limit=1";
-  
-  console.log(queryURL);
-  return queryURL;
+
+/**
+ * Make a histogram url given the baseurl and url parameters
+ * @param {string} baseURL 
+ * @param {*} urlParams Query parameters for the request
+ */
+function makeFullHistogramUrl(baseURL, { coin, fiat, timeUnixSec }) {
+  return `${baseURL}&fsym=${coin}&tsym=${fiat}&toTs=${timeUnixSec}&limit=1`;
 }
 
-function sendFetchRequest(URL) {
-  fetch(URL)
-    .then(function(response) {
-      //default to arrow function
-      return response.json();
+function sendFetchRequest(url) {
+  return fetch(url)
+    .then(response => response.json)
+}
+
+function averageHistogramValues(jsonResponsePromise) {
+  return jsonResponsePromise.then(histogram => {
+    const totalValue = histogram.Data.reduce(
+      (prev, next) => {
+        Object.keys(prev).forEach(key => {
+          prev[key] += next[key]
+        })
+        return prev;
+      },
+      {
+        close: 0,
+        high: 0,
+        low: 0,
+        open: 0,
+        volumefrom: 0,
+        volumeto: 0
+      }
+    );
+
+    const averagedValues = {}
+    Object.keys(totalValue).forEach(key => {
+      averagedValues[key] = totalValue[key] / histogram.Data.length;
     })
 
-    .then(function(acculmulate) {
-      const acculmulatedValue = acculmulate.Data.reduce(
-        function (prev, next) {
-          prev.close += next.close;
-          prev.high += next.high;
-          prev.low += next.low;
-          prev.open += next.open;
-          prev.volumefrom += next.volumefrom;
-          prev.volumeto += next.volumeto;
+    return averagedValues;
+  })
+}
 
-          return prev;
-        },
-        {
-          close: 0,
-          high: 0,
-          low: 0,
-          open: 0,
-          volumefrom: 0,
-          volumeto: 0
-        }
-      );
-      // Read up on Array.prototype. (map, filter, reduce)
+function displayHistogram(averagedValuesPromise) {
+  averagedValuesPromise.then(averagedValues => {
+    const closeResultNode = document.getElementById("closeResult");
+    const highResultNode = document.getElementById("highResult");
+    const lowResultNode = document.getElementById("lowResult");
+    const openResultNode = document.getElementById("openResult");
 
-      //imperative -> make declarative
-      // for (let i = 0; i < acculmulate.Data.length; i++) {
-      //   const item = acculmulate.Data[i];
-      //   acculmulatedValue.close += item.close;
-      //   acculmulatedValue.high += item.high;
-      //   acculmulatedValue.low += item.low;
-      //   acculmulatedValue.open += item.open;
-      //   acculmulatedValue.volumefrom += item.volumefrom;
-      //   acculmulatedValue.volumeto += item.volumeto;
-      // }
-      //explain why you're dividing by 2
-      acculmulatedValue.close = acculmulatedValue.close / 2;
-      acculmulatedValue.high = acculmulatedValue.high / 2;
-      acculmulatedValue.low = acculmulatedValue.low / 2;
-      acculmulatedValue.open = acculmulatedValue.open / 2;
-      acculmulatedValue.volumefrom = acculmulatedValue.volumefrom / 2;
-      acculmulatedValue.volumeto = acculmulatedValue.volumeto / 2;
-
-      console.log(acculmulatedValue);
-      return acculmulatedValue;
-    })
-    .then(function(display) {
-      const resultClose = document.getElementById("closeResult");
-      const resultHigh = document.getElementById("highResult");
-      const resultLow = document.getElementById("lowResult");
-      const resultOpen = document.getElementById("openResult");
-
-      resultClose.textContent = "Close: " + display.close;
-      resultHigh.textContent = "High: " + display.high;
-      resultLow.textContent = "Low: " + display.low;
-      resultOpen.textContent = "Open: " + display.open;
-    });
+    const { close, high, low, open } = averagedValues
+    closeResultNode.textContent = `Close: ${close}`;
+    highResultNode.textContent = `High: ${high}`;
+    lowResultNode.textContent = `Low: ${low}`;
+    openResultNode.textContent = `Open: ${open}`;
+  });
 }
